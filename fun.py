@@ -105,7 +105,56 @@ def crop_largest_box(image_path, name, output_dir="saved"):
         print("Tidak ditemukan kotak")
 
 
-def load_pixel(image_path):
+def load_pixel(image_path, threshold=None, convert=True):
     img = Image.open(image_path)
-    pixel_array = np.array(img)/ 255.0
-    return pixel_array.flatten()
+    
+    # Convert to grayscale if needed
+    if img.mode != 'L':
+        img = img.convert('L')
+    
+    # Convert to numpy array (uint8 by default)
+    pixel_array = np.array(img, dtype=np.uint8) if convert else np.array(img)
+    
+    # Determine threshold (use parameter if provided, else auto-calculate)
+    teta = threshold if threshold is not None else (np.max(pixel_array) + np.min(pixel_array)) // 2
+    
+    # Binarize: values >= teta become 0 (background), others 1 (foreground)
+    binary_array = np.where(pixel_array >= teta, 0.0, 1.0).astype(np.float32)
+    
+    return binary_array.flatten()
+
+def load_pixel2(image_path, threshold=247, convert = True):
+    img = Image.open(image_path)
+    
+    # pixel_array = np.array(img)
+        
+    # if convert:
+    pixel_array = np.array(img, dtype=np.uint8)
+    p = pixel_array.flatten()
+    teta = (max(p) + min(p))/2
+    
+    binary_array = np.where(pixel_array >= teta, 0.0, 1.0).astype(np.float32)
+    return binary_array.flatten()
+    
+    # return pixel_array.flatten()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # img = Image.open(image_path).convert('L')
+    
+    # # Apply threshold
+    # if convert:
+    #     pixel_array = np.array(img, dtype=np.uint8)
+    #     binary_array = np.where(pixel_array >= threshold, 0.0, 1.0).astype(np.float32)
+    #     return binary_array.flatten()
+    # pixel_array = np.array(img)
+    # return pixel_array.flatten()
